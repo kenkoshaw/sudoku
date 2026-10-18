@@ -4,7 +4,6 @@ import { generate, PEERS, type Difficulty, type Grid } from './engine';
 import { dailyPuzzle, dailyDifficulty, formatDay } from './daily';
 import { cellPoints, groupBonus, digitBonus, winBonus } from './score';
 import { recordWin, recordLoss, getProgress } from './progress';
-import { getSettings } from './settings';
 import { THEMES } from './themes';
 import { sound, floatText, confetti, toast } from './fx';
 import { createWheel, type WheelState } from './wheel';
@@ -100,7 +99,6 @@ export interface GameOptions {
 }
 
 export function mount(root: HTMLElement, opts: GameOptions): () => void {
-  const settings = getSettings();
   let state: State;
   if (opts.mode === 'daily' && opts.date) {
     const saved = load<State | null>(KEY.daily, null);
@@ -157,8 +155,8 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
     tool('Auto notes', ICONS.auto, autoNotes),
   );
 
-  const pad = h('div', { class: 'pad' + (settings.input === 'pad' ? '' : ' hidden') });
-  for (let d = 1; d <= 9; d++) pad.append(h('button', { onclick: () => enter(d) }, String(d)));
+  const pad = h('div', { class: 'pad' });
+  for (let d = 1; d <= 9; d++) pad.append(h('button', { 'data-d': d, onclick: () => enter(d) }, String(d)));
 
   const modal = h('div', { class: 'modal hidden', role: 'dialog' });
 
@@ -202,35 +200,40 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
   function select(i: number): void {
     if (state.status !== 'playing' || paused) return;
     selected = i;
+    wheel.close();
     render();
-    if (settings.input === 'wheel' && editable(i)) {
-      const [x, y, size] = cellCentre(i);
-      wheel.open(x, y, size, wheelState());
-    } else wheel.close();
   }
 
+  const HOLD_MS = 220;
+
   /**
-   * Press a cell to open the wheel, slide towards a digit, let go to enter it.
-   * Letting go in the middle cancels; a plain tap leaves the wheel open for tapping.
+   * Tap a cell to select it. Hold it (or start sliding) to open the wheel,
+   * slide towards a digit and let go to enter it. Letting go in the middle cancels.
    */
   function press(i: number, e: PointerEvent): void {
     if (e.button > 0) return;
     select(i);
-    if (!wheel.isOpen) return;
+    if (state.status !== 'playing' || paused || !editable(i)) return;
     e.preventDefault();
     const x0 = e.clientX, y0 = e.clientY;
     let moved = false;
+    const openWheel = () => {
+      if (wheel.isOpen || selected !== i) return;
+      const [x, y, size] = cellCentre(i);
+      wheel.open(x, y, size, wheelState());
+    };
+    const timer = window.setTimeout(openWheel, HOLD_MS);
     const move = (ev: PointerEvent) => {
-      if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 10) moved = true;
-      if (moved) wheel.track(ev.clientX, ev.clientY);
+      if (!moved && Math.hypot(ev.clientX - x0, ev.clientY - y0) > 10) { moved = true; openWheel(); }
+      if (wheel.isOpen) wheel.track(ev.clientX, ev.clientY);
     };
     const end = (ev: PointerEvent) => {
+      clearTimeout(timer);
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', end);
       window.removeEventListener('pointercancel', end);
-      if (!moved) return;
+      if (!wheel.isOpen) return; // a tap: the cell is just selected
       const d = ev.type === 'pointerup' ? wheel.track(ev.clientX, ev.clientY) : 0;
-      wheel.clearTrack();
       if (d) enter(d);
       wheel.close();
     };

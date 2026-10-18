@@ -2,11 +2,10 @@ import { load, save } from './storage';
 
 export interface Settings {
   sound: boolean;
-  input: 'wheel' | 'pad';
   theme: string;
 }
 
-const DEFAULTS: Settings = { sound: true, input: 'wheel', theme: 'classic' };
+const DEFAULTS: Settings = { sound: true, theme: 'classic' };
 
 export function getSettings(): Settings {
   return { ...DEFAULTS, ...load<Partial<Settings>>('settings', {}) };

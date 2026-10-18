@@ -299,7 +299,13 @@ a { color: inherit; text-decoration: none; }
   font: inherit; font-size: clamp(1.9rem, 9.5vw, 2.6rem); color: var(--sd-user);
   padding: 6px 0; touch-action: manipulation; border-radius: 8px;
 }
-.pad button:active { background: var(--sd-tool); }
+.pad button { position: relative; }
+.pad button:active::after {
+  content: attr(data-d); position: absolute; left: 50%; bottom: 70%; z-index: 6;
+  transform: translateX(-50%); width: 56px; height: 70px; border-radius: 12px;
+  display: grid; place-items: center; font-size: 2.8rem; color: var(--sd-user);
+  background: var(--surface); box-shadow: 0 6px 20px rgb(0 0 0 / 0.22);
+}
 .pad button.done { visibility: hidden; }
 
 /* ---------- Number wheel ---------- */

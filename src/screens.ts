@@ -241,17 +241,11 @@ export function settings(root: HTMLElement): void {
     });
     return b;
   };
-  const inputSeg = h('div', { class: 'seg' },
-    h('button', { 'aria-pressed': String(s.input === 'wheel'), onclick: () => { setSetting('input', 'wheel'); redraw(); } }, 'Number wheel'),
-    h('button', { 'aria-pressed': String(s.input === 'pad'), onclick: () => { setSetting('input', 'pad'); redraw(); } }, 'Number pad'),
-  );
-  function redraw(): void { root.replaceChildren(); settings(root); }
 
   root.append(
     h('header', { class: 'game-head' }, h('a', { class: 'back', href: '#/', 'aria-label': 'Back' }, '‹'), h('h1', {}, 'Settings')),
     h('div', { class: 'card settings' },
       h('div', { class: 'setting' }, h('span', {}, 'Sound effects'), toggle(s.sound, (v) => setSetting('sound', v))),
-      h('div', { class: 'setting col' }, h('span', {}, 'Enter numbers with'), inputSeg),
       h('a', { class: 'setting', href: '#/awards' }, h('span', {}, 'Board theme'), h('span', { class: 'muted' }, `${THEMES.find((t) => t.id === s.theme)?.name ?? 'Classic'} ›`)),
     ),
     h('button', {

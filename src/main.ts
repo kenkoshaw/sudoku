@@ -6,6 +6,8 @@ import { applyTheme } from './themes';
 import { home, calendar, stats, awards, settings } from './screens';
 
 registerSW({ immediate: true });
+// Lets :active styles (the number key pop-up) work on iOS Safari.
+document.addEventListener('touchstart', () => {}, { passive: true });
 applyTheme();
 
 const app = document.getElementById('app')!;
