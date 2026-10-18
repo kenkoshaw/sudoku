@@ -11,6 +11,10 @@ export interface Wheel {
   open(cx: number, cy: number, cellSize: number, state: WheelState): void;
   update(state: WheelState): void;
   close(): void;
+  /** Highlight the digit the pointer is pointing at; returns it, or 0. */
+  track(clientX: number, clientY: number): number;
+  /** Clear the drag highlight. */
+  clearTrack(): void;
   readonly isOpen: boolean;
 }
 
@@ -30,6 +34,8 @@ export function createWheel(container: HTMLElement, onPick: (d: number) => void,
   const el = h('div', { class: 'wheel hidden', role: 'dialog', 'aria-label': 'Choose a number' }, h('div', { class: 'wheel-ring' }), centre, ...buttons);
   container.append(el);
   let open = false;
+  let orbit = 0; // digit orbit radius, px
+  let hole = 0; // inner hole radius, px
 
   const onOutside = (e: PointerEvent) => {
     if (!el.contains(e.target as Node)) close();
@@ -49,6 +55,8 @@ export function createWheel(container: HTMLElement, onPick: (d: number) => void,
     const radius = cell * 1.38; // digit orbit
     const size = Math.max(30, cell * 0.95);
     const outer = radius + size / 2 + 6;
+    orbit = radius;
+    hole = radius - size / 2 - 4;
     // Keep the ring on screen horizontally; it may overhang the board edge a little.
     const minX = outer - 14, maxX = container.clientWidth - outer + 14;
     const x = Math.min(maxX, Math.max(minX, cx));
@@ -79,8 +87,28 @@ export function createWheel(container: HTMLElement, onPick: (d: number) => void,
     open = true;
   }
 
+  /** Pick by direction from the wheel centre, so the finger only has to head towards a digit. */
+  function track(x: number, y: number): number {
+    const r = el.getBoundingClientRect();
+    const dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height / 2);
+    const dist = Math.hypot(dx, dy);
+    let d = 0;
+    if (dist > hole * 0.7 && dist < orbit * 2.4) {
+      const a = Math.atan2(dy, dx) + Math.PI / 2; // 0 = straight up
+      const k = ((Math.round(a / ((Math.PI * 2) / 9)) % 9) + 9) % 9;
+      if (!buttons[k].disabled) d = k + 1;
+    }
+    buttons.forEach((b, k) => b.classList.toggle('hover', k + 1 === d));
+    return d;
+  }
+
+  function clearTrack(): void {
+    buttons.forEach((b) => b.classList.remove('hover'));
+  }
+
   function close(): void {
     if (!open) return;
+    clearTrack();
     open = false;
     el.classList.add('hidden');
     document.removeEventListener('pointerdown', onOutside, true);
@@ -91,6 +119,8 @@ export function createWheel(container: HTMLElement, onPick: (d: number) => void,
     open: openAt,
     update,
     close,
+    track,
+    clearTrack,
     get isOpen() { return open; },
   };
 }

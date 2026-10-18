@@ -7,7 +7,7 @@ Live: https://kenkoshaw.github.io/sudoku/
 ## Features
 
 - **Daily challenge**: one puzzle per date, the same on every device. A calendar shows the days you solved, and a 🔥 streak counts the days in a row.
-- **Number wheel**: tap a cell and the digits 1–9 appear in a ring around it. You can switch to a number pad in Settings.
+- **Number wheel**: press and hold a cell, slide towards a digit and let go to enter it. Letting go in the middle cancels, and a quick tap leaves the wheel open for tapping. You can switch to a number pad in Settings.
 - **Score**: points for each correct number, doubled if you place it quickly, plus bonuses for completing a row, column, box or number. The finish bonus doubles if you make no mistakes.
 - **3 mistakes and you're out**, with one second chance per game.
 - **Stats**: games played, win rate, best and average time, best score and win streaks, for each level.

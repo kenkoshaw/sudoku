@@ -138,7 +138,7 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
 
   const board = h('div', { class: 'sudoku', role: 'grid' });
   const cells = Array.from({ length: 81 }, (_, i) =>
-    h('div', { class: 'cell', role: 'gridcell', onclick: () => select(i) }),
+    h('div', { class: 'cell', role: 'gridcell', onpointerdown: (e: Event) => press(i, e as PointerEvent) }),
   );
   board.append(...cells);
   const pauseCover = h('button', { class: 'pause-cover hidden', onclick: () => setPaused(false) },
@@ -207,6 +207,36 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
       const [x, y, size] = cellCentre(i);
       wheel.open(x, y, size, wheelState());
     } else wheel.close();
+  }
+
+  /**
+   * Press a cell to open the wheel, slide towards a digit, let go to enter it.
+   * Letting go in the middle cancels; a plain tap leaves the wheel open for tapping.
+   */
+  function press(i: number, e: PointerEvent): void {
+    if (e.button > 0) return;
+    select(i);
+    if (!wheel.isOpen) return;
+    e.preventDefault();
+    const x0 = e.clientX, y0 = e.clientY;
+    let moved = false;
+    const move = (ev: PointerEvent) => {
+      if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 10) moved = true;
+      if (moved) wheel.track(ev.clientX, ev.clientY);
+    };
+    const end = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', end);
+      window.removeEventListener('pointercancel', end);
+      if (!moved) return;
+      const d = ev.type === 'pointerup' ? wheel.track(ev.clientX, ev.clientY) : 0;
+      wheel.clearTrack();
+      if (d) enter(d);
+      wheel.close();
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
   }
 
   function toggleNotes(): void {
