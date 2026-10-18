@@ -2,10 +2,49 @@ import './style.css';
 import { registerSW } from 'virtual:pwa-register';
 import { h } from './dom';
 import { mount } from './game';
+import { applyTheme } from './themes';
+import { home, calendar, stats, awards, settings } from './screens';
 
 registerSW({ immediate: true });
+applyTheme();
 
 const app = document.getElementById('app')!;
-const body = h('main', { class: 'game' });
-app.replaceChildren(h('header', { class: 'game-head' }, h('h1', {}, 'Sudoku')), body);
-mount(body);
+let cleanup: (() => void) | null = null;
+
+const TABS = [
+  { hash: '#/', label: 'Home', icon: '⌂' },
+  { hash: '#/daily', label: 'Daily', icon: '📅' },
+  { hash: '#/stats', label: 'Stats', icon: '📊' },
+  { hash: '#/awards', label: 'Trophies', icon: '🏆' },
+];
+
+function tabBar(active: string): HTMLElement {
+  return h('nav', { class: 'tab-bar' },
+    ...TABS.map((t) => h('a', { href: t.hash, class: t.hash === active ? 'active' : '' }, h('span', { 'aria-hidden': 'true' }, t.icon), t.label)),
+  );
+}
+
+function route(): void {
+  cleanup?.();
+  cleanup = null;
+  const hash = location.hash || '#/';
+  const main = h('main', { class: 'screen' });
+  app.replaceChildren(main);
+  document.body.classList.remove('in-game');
+
+  const daily = hash.match(/^#\/daily\/(\d{4}-\d{2}-\d{2})$/);
+  if (hash === '#/play' || daily) {
+    document.body.classList.add('in-game');
+    cleanup = mount(main, daily ? { mode: 'daily', date: daily[1] } : { mode: 'classic' });
+  } else {
+    const screens: Record<string, (r: HTMLElement) => void> = {
+      '#/daily': calendar, '#/stats': stats, '#/awards': awards, '#/settings': settings,
+    };
+    (screens[hash] ?? home)(main);
+    if (hash !== '#/settings') app.append(tabBar(screens[hash] ? hash : '#/'));
+  }
+  window.scrollTo(0, 0);
+}
+
+window.addEventListener('hashchange', route);
+route();

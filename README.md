@@ -6,11 +6,15 @@ Live: https://kenkoshaw.github.io/sudoku/
 
 ## Features
 
-- Easy, Medium, Hard and Expert puzzles, generated on the device
-- Notes, Undo, Erase and Hint
-- Highlights for the selected row, column, box and matching numbers
-- Wave animations when you complete a row, column, box, number or puzzle
-- Progress and best times saved on the device
+- **Daily challenge**: one puzzle per date, the same on every device. A calendar shows the days you solved, and a 🔥 streak counts the days in a row.
+- **Number wheel**: tap a cell and the digits 1–9 appear in a ring around it. You can switch to a number pad in Settings.
+- **Score**: points for each correct number, doubled if you place it quickly, plus bonuses for completing a row, column, box or number. The finish bonus doubles if you make no mistakes.
+- **3 mistakes and you're out**, with one second chance per game.
+- **Stats**: games played, win rate, best and average time, best score and win streaks, for each level.
+- **17 trophies and 6 board themes**. Trophies unlock the themes.
+- **Feedback**: wave animations, confetti, optional sound effects, floating points.
+- Notes, auto notes, undo and pause. Leaving the app pauses the game.
+- Easy, Medium, Hard and Expert puzzles. Each one is generated on the device and has exactly one solution.
 
 ## Install on your phone
 
@@ -31,8 +35,13 @@ Pushing to `main` runs tests, builds, and deploys to GitHub Pages.
 
 ## Layout
 
-- `src/engine.ts`: puzzle generator and solver
-- `src/game.ts`: board UI, input, animations
-- `tests/engine.test.ts`: checks every generated puzzle has exactly one solution
+- `src/engine.ts`: puzzle generator and solver (accepts a seeded random function)
+- `src/daily.ts`: daily puzzle seeds, streaks
+- `src/game.ts`: board, input, scoring, win and game-over screens
+- `src/wheel.ts`: radial number picker
+- `src/progress.ts`, `src/achievements.ts`, `src/score.ts`: stats, trophies, points
+- `src/themes.ts`, `src/fx.ts`: board themes, sound, confetti, toasts
+- `src/screens.ts`: home, daily calendar, stats, trophies, settings
+- `tests/`: generator uniqueness, daily determinism, streaks, scoring, trophies
 
 Split out of [mindgym](https://github.com/kenkoshaw/mindgym).

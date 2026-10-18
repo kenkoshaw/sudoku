@@ -1,3 +1,5 @@
+export type Rng = () => number;
+
 /** Grid: 81 numbers, 0 = empty, row-major. */
 export type Grid = number[];
 
@@ -27,9 +29,9 @@ function popcount(n: number): number {
 
 /**
  * Count solutions up to `limit`. If `fill` is given, it receives the first solution found.
- * `randomise` shuffles candidate order (used to generate a random full grid).
+ * `rng`, when given, shuffles candidate order (used to generate a random full grid).
  */
-export function countSolutions(grid: Grid, limit = 2, fill?: Grid, randomise = false): number {
+export function countSolutions(grid: Grid, limit = 2, fill?: Grid, rng?: Rng): number {
   const g = grid.slice();
   const rows = new Array(9).fill(0), cols = new Array(9).fill(0), boxes = new Array(9).fill(0);
   for (let i = 0; i < 81; i++) {
@@ -58,7 +60,7 @@ export function countSolutions(grid: Grid, limit = 2, fill?: Grid, randomise = f
     if (bestCount === 0) return false;
     const digits: number[] = [];
     for (let d = 1; d <= 9; d++) if (bestMask & (1 << d)) digits.push(d);
-    if (randomise) shuffleInPlace(digits);
+    if (rng) shuffleInPlace(digits, rng);
     const r = Math.floor(best / 9), c = best % 9, b = box(best);
     for (const d of digits) {
       const bit = 1 << d;
@@ -73,16 +75,16 @@ export function countSolutions(grid: Grid, limit = 2, fill?: Grid, randomise = f
   return found;
 }
 
-function shuffleInPlace<T>(a: T[]): void {
+function shuffleInPlace<T>(a: T[], rng: Rng): void {
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(rng() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
 }
 
-export function randomSolution(): Grid {
+export function randomSolution(rng: Rng = Math.random): Grid {
   const out = new Array(81).fill(0);
-  countSolutions(new Array(81).fill(0), 1, out, true);
+  countSolutions(new Array(81).fill(0), 1, out, rng);
   return out;
 }
 
@@ -91,14 +93,14 @@ export interface Puzzle {
   solution: Grid;
 }
 
-export function generate(difficulty: Difficulty): Puzzle {
-  const solution = randomSolution();
+export function generate(difficulty: Difficulty, rng: Rng = Math.random): Puzzle {
+  const solution = randomSolution(rng);
   const puzzle = solution.slice();
   const target = CLUES[difficulty];
   let clues = 81;
   // Remove in symmetric pairs (i, 80 - i) for a classic look.
   const order = Array.from({ length: 41 }, (_, i) => i);
-  shuffleInPlace(order);
+  shuffleInPlace(order, rng);
   for (const i of order) {
     if (clues <= target) break;
     const j = 80 - i;
