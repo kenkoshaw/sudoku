@@ -2,8 +2,8 @@ import { h, formatTime } from './dom';
 import { save } from './storage';
 import { getProgress, emptyProgress, type LevelStats } from './progress';
 import { ACHIEVEMENTS } from './achievements';
-import { THEMES, applyTheme } from './themes';
-import { getSettings, setSetting } from './settings';
+import { THEMES, applyTheme, modeToggle } from './themes';
+import { getSettings, setSetting, type Settings } from './settings';
 import { dateKey, addDays, parseKey, dailyDifficulty, dailyStreak, longestStreak, formatDay } from './daily';
 import { classicInProgress, startClassic, LEVELS, levelName } from './game';
 import type { Difficulty } from './engine';
@@ -13,7 +13,10 @@ const go = (hash: string) => { location.hash = hash; };
 function topBar(title: string): HTMLElement {
   return h('header', { class: 'top-bar' },
     h('h1', {}, title),
-    h('a', { class: 'icon-link', href: '#/settings', 'aria-label': 'Settings' }, '⚙︎'),
+    h('div', { class: 'top-actions' },
+      modeToggle(),
+      h('a', { class: 'icon-link', href: '#/settings', 'aria-label': 'Settings' }, '⚙︎'),
+    ),
   );
 }
 
@@ -242,19 +245,27 @@ export function settings(root: HTMLElement): void {
     return b;
   };
 
+  const modes: [Settings['appearance'], string][] = [['system', 'System'], ['light', 'Light'], ['dark', 'Dark']];
+  const appearanceSeg = h('div', { class: 'seg' },
+    ...modes.map(([m, label]) => h('button', {
+      'aria-pressed': String(s.appearance === m),
+      onclick: () => { setSetting('appearance', m); applyTheme(); root.replaceChildren(); settings(root); },
+    }, label)),
+  );
   root.append(
     h('header', { class: 'game-head' }, h('a', { class: 'back', href: '#/', 'aria-label': 'Back' }, '‹'), h('h1', {}, 'Settings')),
     h('div', { class: 'card settings' },
       h('div', { class: 'setting' }, h('span', {}, 'Sound effects'), toggle(s.sound, (v) => setSetting('sound', v))),
-      h('a', { class: 'setting', href: '#/awards' }, h('span', {}, 'Board theme'), h('span', { class: 'muted' }, `${THEMES.find((t) => t.id === s.theme)?.name ?? 'Classic'} ›`)),
+      h('div', { class: 'setting col' }, h('span', {}, 'Appearance'), appearanceSeg),
+      h('a', { class: 'setting', href: '#/awards' }, h('span', {}, 'Board theme'), h('span', { class: 'muted' }, `${(THEMES.find((t) => t.id === s.theme) ?? THEMES[0]).name} ›`)),
     ),
     h('button', {
       class: 'btn danger',
       onclick: () => {
         if (!confirm('Reset all statistics, streaks and trophies? This cannot be undone.')) return;
         save('progress', emptyProgress());
-        setSetting('theme', 'classic');
-        applyTheme('classic');
+        setSetting('theme', 'amber');
+        applyTheme('amber');
         go('#/');
       },
     }, 'Reset progress'),

@@ -1,4 +1,5 @@
-import { getSettings } from './settings';
+import { getSettings, setSetting } from './settings';
+import { h } from './dom';
 
 type Palette = Record<'user' | 'peer' | 'same' | 'sel' | 'flash' | 'tool' | 'toolInk' | 'accent', string>;
 
@@ -13,9 +14,9 @@ export interface Theme {
 
 export const THEMES: Theme[] = [
   {
-    id: 'classic', name: 'Classic', unlock: null,
-    light: { user: '#325aaf', peer: '#e2ebf3', same: '#c3d7ea', sel: '#bbdefb', flash: '#8fb4e8', tool: '#eaeef4', toolInk: '#5a7bc0', accent: '#325aaf' },
-    dark: { user: '#7da6ff', peer: '#273149', same: '#33456b', sel: '#3a5687', flash: '#4f74b8', tool: '#273149', toolInk: '#8fb0f5', accent: '#5b8cff' },
+    id: 'amber', name: 'Amber Walnut', unlock: null,
+    light: { user: '#b0714b', peer: '#f1ebe4', same: '#e6d6c5', sel: '#dcbfa3', flash: '#c1916f', tool: '#e6dfd6', toolInk: '#8f5737', accent: '#b0714b' },
+    dark: { user: '#dc9e72', peer: '#3c3532', same: '#55463d', sel: '#6c5240', flash: '#b0714b', tool: '#423b38', toolInk: '#dc9e72', accent: '#b0714b' },
   },
   {
     id: 'lavender', name: 'Lavender', unlock: 'first_win',
@@ -44,20 +45,45 @@ export const THEMES: Theme[] = [
   },
 ];
 
-const dark = window.matchMedia('(prefers-color-scheme: dark)');
+const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+export function isDark(): boolean {
+  const a = getSettings().appearance;
+  return a === 'dark' || (a === 'system' && systemDark.matches);
+}
 
 export function applyTheme(id = getSettings().theme): void {
   const theme = THEMES.find((t) => t.id === id) ?? THEMES[0];
-  const p = dark.matches ? theme.dark : theme.light;
-  const root = document.documentElement.style;
-  root.setProperty('--sd-user', p.user);
-  root.setProperty('--sd-peer', p.peer);
-  root.setProperty('--sd-same', p.same);
-  root.setProperty('--sd-sel', p.sel);
-  root.setProperty('--sd-flash', p.flash);
-  root.setProperty('--sd-tool', p.tool);
-  root.setProperty('--sd-tool-ink', p.toolInk);
-  root.setProperty('--accent', p.accent);
+  const dark = isDark();
+  const p = dark ? theme.dark : theme.light;
+  const root = document.documentElement;
+  root.dataset.mode = dark ? 'dark' : 'light';
+  const vars: Record<string, string> = {
+    '--sd-user': p.user, '--sd-peer': p.peer, '--sd-same': p.same, '--sd-sel': p.sel,
+    '--sd-flash': p.flash, '--sd-tool': p.tool, '--sd-tool-ink': p.toolInk, '--accent': p.accent,
+  };
+  for (const [k, v] of Object.entries(vars)) root.style.setProperty(k, v);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim());
 }
 
-dark.addEventListener('change', () => applyTheme());
+systemDark.addEventListener('change', () => applyTheme());
+
+const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+const MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+
+/** Sun/moon button that flips between light and dark. */
+export function modeToggle(): HTMLButtonElement {
+  const btn = h('button', { class: 'icon-btn mode-toggle' });
+  const draw = () => {
+    const dark = isDark();
+    btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${dark ? SUN : MOON}</svg>`;
+  };
+  btn.addEventListener('click', () => {
+    setSetting('appearance', isDark() ? 'light' : 'dark');
+    applyTheme();
+    draw();
+  });
+  draw();
+  return btn;
+}

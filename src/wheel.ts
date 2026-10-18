@@ -80,7 +80,7 @@ export function createWheel(container: HTMLElement, onPick: (d: number) => void,
     update(s);
     el.classList.remove('hidden');
     if (!open) {
-      el.animate([{ transform: 'scale(0.4)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 160, easing: 'cubic-bezier(.2,.9,.3,1.2)' });
+      el.animate([{ transform: 'scale(0.75)', opacity: 0.4 }, { transform: 'scale(1)', opacity: 1 }], { duration: 80, easing: 'ease-out' });
       // Defer so the tap that opened the wheel doesn't immediately close it.
       setTimeout(() => document.addEventListener('pointerdown', onOutside, true), 0);
     }

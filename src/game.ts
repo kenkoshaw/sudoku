@@ -4,7 +4,7 @@ import { generate, PEERS, type Difficulty, type Grid } from './engine';
 import { dailyPuzzle, dailyDifficulty, formatDay } from './daily';
 import { cellPoints, groupBonus, digitBonus, winBonus } from './score';
 import { recordWin, recordLoss, getProgress } from './progress';
-import { THEMES } from './themes';
+import { THEMES, modeToggle } from './themes';
 import { sound, floatText, confetti, toast } from './fx';
 import { createWheel, type WheelState } from './wheel';
 
@@ -122,12 +122,13 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
   const header = h('header', { class: 'game-head' },
     h('a', { class: 'back', href: state.mode === 'daily' ? '#/daily' : '#/', 'aria-label': 'Back' }, '‹'),
     h('h1', {}, title),
+    modeToggle(),
     pauseBtn,
   );
 
   const livesEl = h('span', { class: 'lives' });
   const scoreEl = h('b', {}, '0');
-  const timeEl = h('b', {}, '0:00');
+  const timeEl = h('b', {}, formatTime(state.elapsed));
   const info = h('div', { class: 'sd-info' },
     h('div', {}, 'Mistakes', livesEl),
     h('div', { class: 'center' }, 'Score', scoreEl),
@@ -204,7 +205,7 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
     render();
   }
 
-  const HOLD_MS = 220;
+  const HOLD_MS = 120;
 
   /**
    * Tap a cell to select it. Hold it (or start sliding) to open the wheel,
@@ -547,7 +548,10 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
         cell.replaceChildren(grid);
       } else cell.replaceChildren();
     });
-    [...pad.children].forEach((b, k) => b.classList.toggle('done', done.has(k + 1)));
+    [...pad.children].forEach((b, k) => {
+      b.classList.toggle('done', done.has(k + 1));
+      (b as HTMLButtonElement).disabled = done.has(k + 1);
+    });
   }
 
   /* ---------- Lifecycle ---------- */

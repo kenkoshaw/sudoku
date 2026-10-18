@@ -3,9 +3,10 @@ import { load, save } from './storage';
 export interface Settings {
   sound: boolean;
   theme: string;
+  appearance: 'system' | 'light' | 'dark';
 }
 
-const DEFAULTS: Settings = { sound: true, theme: 'classic' };
+const DEFAULTS: Settings = { sound: true, theme: 'amber', appearance: 'system' };
 
 export function getSettings(): Settings {
   return { ...DEFAULTS, ...load<Partial<Settings>>('settings', {}) };

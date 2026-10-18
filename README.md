@@ -11,7 +11,7 @@ Live: https://kenkoshaw.github.io/sudoku/
 - **Score**: points for each correct number, doubled if you place it quickly, plus bonuses for completing a row, column, box or number. The finish bonus doubles if you make no mistakes.
 - **3 mistakes and you're out**, with one second chance per game.
 - **Stats**: games played, win rate, best and average time, best score and win streaks, for each level.
-- **17 trophies and 6 board themes**. Trophies unlock the themes.
+- **Amber Walnut colours** with a light/dark toggle (sun/moon button, or System/Light/Dark in Settings). 17 trophies unlock 5 more board themes.
 - **Feedback**: wave animations, confetti, optional sound effects, floating points.
 - Notes, auto notes, undo and pause. Leaving the app pauses the game.
 - Easy, Medium, Hard and Expert puzzles. Each one is generated on the device and has exactly one solution.
