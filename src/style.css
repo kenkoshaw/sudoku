@@ -251,6 +251,7 @@ a { color: inherit; text-decoration: none; }
 .sudoku .cell:nth-child(n + 46):nth-child(-n + 54) { border-bottom: 2px solid var(--sd-box); }
 .sudoku .cell:nth-child(n + 73) { border-bottom: 0; }
 .sudoku .cell.given { color: var(--sd-given); }
+.sudoku .cell.complete { color: var(--sd-user); font-weight: 600; }
 .sudoku .cell.peer { background: var(--sd-peer); }
 .sudoku .cell.same { background: var(--sd-same); }
 .sudoku .cell.sel { background: var(--sd-sel); }

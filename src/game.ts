@@ -538,6 +538,7 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
       if (selVal && v === selVal) cell.classList.add('same');
       if (i === selected) cell.classList.add('sel');
       if (v && v !== state.solution[i]) cell.classList.add('err');
+      if (v && done.has(v)) cell.classList.add('complete');
       if (v) cell.replaceChildren(h('span', {}, String(v)));
       else if (state.notes[i]) {
         const grid = h('div', { class: 'notes' });

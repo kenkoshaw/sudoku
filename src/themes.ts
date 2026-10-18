@@ -15,8 +15,8 @@ export interface Theme {
 export const THEMES: Theme[] = [
   {
     id: 'amber', name: 'Amber Walnut', unlock: null,
-    light: { user: '#b0714b', peer: '#f1ebe4', same: '#e6d6c5', sel: '#dcbfa3', flash: '#c1916f', tool: '#e6dfd6', toolInk: '#8f5737', accent: '#b0714b' },
-    dark: { user: '#dc9e72', peer: '#3c3532', same: '#55463d', sel: '#6c5240', flash: '#b0714b', tool: '#423b38', toolInk: '#dc9e72', accent: '#b0714b' },
+    light: { user: '#c95f1c', peer: '#f5eae0', same: '#f0d2b6', sel: '#eab88e', flash: '#e0853f', tool: '#efe1d3', toolInk: '#b5531a', accent: '#c95f1c' },
+    dark: { user: '#ff9a4d', peer: '#3d3430', same: '#5e4232', sel: '#7a4e30', flash: '#c95f1c', tool: '#443a35', toolInk: '#ff9a4d', accent: '#d2692a' },
   },
   {
     id: 'lavender', name: 'Lavender', unlock: 'first_win',
