@@ -13,6 +13,7 @@
   --sd-line: #d8cfc5;
   --sd-box: #4a423f;
   --sd-given: #4a423f;
+  --sd-entry: #a6805f;
   --sd-note: #8c8079;
   --sd-err: #c2412d;
   --sd-err-bg: #f4d9d2;
@@ -31,6 +32,7 @@
   --sd-line: #4a413c;
   --sd-box: #c9b49a;
   --sd-given: #ecedeb;
+  --sd-entry: #c9b49a;
   --sd-note: #b4a89d;
   --sd-err: #ff8a78;
   --sd-err-bg: #5a2f28;
@@ -243,7 +245,7 @@ a { color: inherit; text-decoration: none; }
   display: grid; place-items: center; position: relative;
   border-right: 1px solid var(--sd-line); border-bottom: 1px solid var(--sd-line);
   font-size: clamp(1.1rem, 6.2vw, 1.9rem); font-variant-numeric: tabular-nums;
-  color: var(--sd-user); cursor: pointer; transition: background-color 0.12s;
+  color: var(--sd-entry); cursor: pointer; transition: background-color 0.12s;
 }
 .sudoku .cell:nth-child(9n) { border-right: 0; }
 .sudoku .cell:nth-child(9n + 3), .sudoku .cell:nth-child(9n + 6) { border-right: 2px solid var(--sd-box); }
