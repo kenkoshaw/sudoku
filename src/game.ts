@@ -205,7 +205,7 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
     render();
   }
 
-  const HOLD_MS = 120;
+  const HOLD_MS = 60;
 
   /**
    * Tap a cell to select it. Hold it (or start sliding) to open the wheel,
@@ -225,7 +225,7 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
     };
     const timer = window.setTimeout(openWheel, HOLD_MS);
     const move = (ev: PointerEvent) => {
-      if (!moved && Math.hypot(ev.clientX - x0, ev.clientY - y0) > 10) { moved = true; openWheel(); }
+      if (!moved && Math.hypot(ev.clientX - x0, ev.clientY - y0) > 5) { moved = true; openWheel(); }
       if (wheel.isOpen) wheel.track(ev.clientX, ev.clientY);
     };
     const end = (ev: PointerEvent) => {

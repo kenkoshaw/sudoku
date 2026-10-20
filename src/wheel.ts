@@ -34,7 +34,6 @@ export function createWheel(container: HTMLElement, onPick: (d: number) => void,
   const el = h('div', { class: 'wheel hidden', role: 'dialog', 'aria-label': 'Choose a number' }, h('div', { class: 'wheel-ring' }), centre, ...buttons);
   container.append(el);
   let open = false;
-  let orbit = 0; // digit orbit radius, px
   let hole = 0; // inner hole radius, px
 
   const onOutside = (e: PointerEvent) => {
@@ -55,7 +54,6 @@ export function createWheel(container: HTMLElement, onPick: (d: number) => void,
     const radius = cell * 1.38; // digit orbit
     const size = Math.max(30, cell * 0.95);
     const outer = radius + size / 2 + 6;
-    orbit = radius;
     hole = radius - size / 2 - 4;
     // Keep the ring on screen horizontally; it may overhang the board edge a little.
     const minX = outer - 14, maxX = container.clientWidth - outer + 14;
@@ -80,7 +78,6 @@ export function createWheel(container: HTMLElement, onPick: (d: number) => void,
     update(s);
     el.classList.remove('hidden');
     if (!open) {
-      el.animate([{ transform: 'scale(0.75)', opacity: 0.4 }, { transform: 'scale(1)', opacity: 1 }], { duration: 80, easing: 'ease-out' });
       // Defer so the tap that opened the wheel doesn't immediately close it.
       setTimeout(() => document.addEventListener('pointerdown', onOutside, true), 0);
     }
@@ -93,7 +90,8 @@ export function createWheel(container: HTMLElement, onPick: (d: number) => void,
     const dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height / 2);
     const dist = Math.hypot(dx, dy);
     let d = 0;
-    if (dist > hole * 0.7 && dist < orbit * 2.4) {
+    // Anywhere outside the centre counts, so the finger can wander off the wheel.
+    if (dist > hole * 0.7) {
       const a = Math.atan2(dy, dx) + Math.PI / 2; // 0 = straight up
       const k = ((Math.round(a / ((Math.PI * 2) / 9)) % 9) + 9) % 9;
       if (!buttons[k].disabled) d = k + 1;
