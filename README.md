@@ -13,7 +13,7 @@ Live: https://kenkoshaw.github.io/sudoku/
 - **Stats**: games played, win rate, best and average time, best score and win streaks, for each level.
 - **Amber Walnut colours** with a light/dark toggle (sun/moon button, or System/Light/Dark in Settings). 17 trophies unlock 5 more board themes.
 - **Feedback**: wave animations, confetti, optional sound effects, floating points.
-- Notes, auto notes, undo and pause. Leaving the app pauses the game.
+- Notes, undo and pause. Leaving the app pauses the game.
 - Easy, Medium, Hard and Expert puzzles. Each one is generated on the device and has exactly one solution.
 
 ## Install on your phone

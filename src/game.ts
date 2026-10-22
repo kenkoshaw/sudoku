@@ -66,7 +66,6 @@ const ICONS = {
   undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
   erase: '<path d="m7 21-4.3-4.3a1 1 0 0 1 0-1.4l10-10a1 1 0 0 1 1.4 0l5.6 5.6a1 1 0 0 1 0 1.4L11 21z"/><path d="M22 21H7"/><path d="m5 11 9 9"/>',
   notes: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
-  auto: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 8h.01M12 8h.01M16 8h.01M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01"/>',
   pause: '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
 };
 
@@ -153,7 +152,6 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
     tool('Undo', ICONS.undo, undo),
     tool('Erase', ICONS.erase, erase),
     notesBtn,
-    tool('Auto notes', ICONS.auto, autoNotes),
   );
 
   const pad = h('div', { class: 'pad' });
@@ -302,25 +300,10 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
   function undo(): void {
     const last = history.pop();
     if (!last || state.status !== 'playing') return;
-    if (last.i >= 0 && !isCorrect(last.i)) state.values[last.i] = last.value;
+    if (!isCorrect(last.i)) state.values[last.i] = last.value;
     state.notes = last.notes;
-    if (last.i >= 0) selected = last.i;
+    selected = last.i;
     wheel.close();
-    persist();
-    render();
-  }
-
-  /** Fill every empty cell with the digits still possible there. */
-  function autoNotes(): void {
-    if (state.status !== 'playing' || paused) return;
-    snapshot(-1);
-    for (let i = 0; i < 81; i++) {
-      if (state.values[i]) continue;
-      let mask = 0x3fe;
-      for (const p of PEERS[i]) if (state.values[p] && isCorrect(p)) mask &= ~(1 << state.values[p]);
-      state.notes[i] = mask;
-    }
-    sound.note();
     persist();
     render();
   }
