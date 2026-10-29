@@ -41,6 +41,7 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
+html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -225,12 +226,12 @@ a { color: inherit; text-decoration: none; }
 .sd-info > div:last-child { text-align: right; justify-items: end; }
 .sd-info > div.center { justify-items: center; }
 .sd-info b { color: var(--text); font-size: 1.05rem; font-variant-numeric: tabular-nums; display: inline-block; }
-.lives { display: flex; gap: 5px; height: 1.5rem; align-items: center; }
-.lives i {
-  width: 12px; height: 12px; border-radius: 50%;
-  background: var(--sd-user); opacity: 0.85; transition: background 0.2s, transform 0.2s;
-}
-.lives i.lost { background: var(--sd-err); transform: scale(0.8); }
+.lives { display: flex; gap: 4px; height: 1.5rem; align-items: center; }
+.heart { width: 22px; height: 22px; overflow: visible; }
+.heart-body { fill: var(--sd-user); }
+.heart-crack { fill: none; stroke: var(--bg); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+.heart.lost .heart-body { fill: color-mix(in srgb, var(--muted) 45%, var(--bg)); }
+.heart.lost .heart-crack { opacity: 1; }
 
 .board-wrap { position: relative; }
 .sudoku {

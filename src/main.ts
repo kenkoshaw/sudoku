@@ -8,6 +8,11 @@ import { home, calendar, stats, awards, settings } from './screens';
 registerSW({ immediate: true });
 // Lets :active styles (the number key pop-up) work on iOS Safari.
 document.addEventListener('touchstart', () => {}, { passive: true });
+// iOS ignores user-scalable=no, so block pinch and double-tap zoom directly.
+for (const type of ['gesturestart', 'gesturechange', 'gestureend', 'dblclick']) {
+  document.addEventListener(type, (e) => e.preventDefault(), { passive: false });
+}
+document.addEventListener('touchmove', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
 applyTheme();
 
 const app = document.getElementById('app')!;

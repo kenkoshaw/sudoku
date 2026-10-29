@@ -69,6 +69,18 @@ const ICONS = {
   pause: '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
 };
 
+const HEART = 'M12 21s-7.5-4.6-9.6-9.3C.9 8.3 2.9 4.5 6.5 4.5c2.2 0 3.6 1.2 4.5 2.6.9-1.4 2.3-2.6 4.5-2.6 3.6 0 5.6 3.8 4.1 7.2C19.5 16.4 12 21 12 21z';
+
+/** Heart with a crack that only shows when the heart is lost. */
+function heartIcon(): SVGSVGElement {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('class', 'heart');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.innerHTML = `<path class="heart-body" d="${HEART}"/><path class="heart-crack" d="M12 7.2 10.2 10.6 13.2 12.8 10.8 16.2 12 19.5"/>`;
+  return svg;
+}
+
 export function icon(paths: string): SVGSVGElement {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
@@ -125,11 +137,14 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
     pauseBtn,
   );
 
-  const livesEl = h('span', { class: 'lives' });
+  const livesEl = h('span', { class: 'lives', role: 'img' });
+  const hearts = Array.from({ length: MAX_MISTAKES }, () => heartIcon());
+  livesEl.append(...hearts);
+  let livesDrawn = false;
   const scoreEl = h('b', {}, '0');
   const timeEl = h('b', {}, formatTime(state.elapsed));
   const info = h('div', { class: 'sd-info' },
-    h('div', {}, 'Mistakes', livesEl),
+    h('div', {}, 'Lives', livesEl),
     h('div', { class: 'center' }, 'Score', scoreEl),
     h('div', {}, 'Time', timeEl),
   );
@@ -506,8 +521,20 @@ export function mount(root: HTMLElement, opts: GameOptions): () => void {
   function render(): void {
     notesBtn.classList.toggle('on', notesMode);
     notesBadge.textContent = notesMode ? 'ON' : 'OFF';
-    livesEl.replaceChildren(...Array.from({ length: MAX_MISTAKES }, (_, k) => h('i', { class: k < state.mistakes ? 'lost' : '' })));
-    livesEl.setAttribute('aria-label', `${state.mistakes} of ${MAX_MISTAKES} mistakes`);
+    // Hearts are lost from the right, so the newest loss is the leftmost lost heart.
+    const lost = (k: number) => k >= MAX_MISTAKES - state.mistakes;
+    hearts.forEach((heart, k) => {
+      const was = heart.classList.contains('lost');
+      heart.classList.toggle('lost', lost(k));
+      if (lost(k) && !was && livesDrawn) {
+        heart.animate(
+          [{ transform: 'scale(1)' }, { transform: 'scale(1.35) rotate(-8deg)' }, { transform: 'rotate(6deg)' }, { transform: 'scale(1)' }],
+          { duration: 380, easing: 'ease-out' },
+        );
+      }
+    });
+    livesDrawn = true;
+    livesEl.setAttribute('aria-label', `${MAX_MISTAKES - state.mistakes} of ${MAX_MISTAKES} lives left`);
     scoreEl.textContent = state.score.toLocaleString();
     const selVal = selected >= 0 ? state.values[selected] : 0;
     const peers = new Set(selected >= 0 ? PEERS[selected] : []);
